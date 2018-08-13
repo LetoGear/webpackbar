@@ -30,6 +30,8 @@ export default class Profile {
   getStats() {
     const loaderStats = {};
     const extStats = {};
+    const componentStats = {};
+    const componentPathReg = /^src\/components\/(.*)\/(.*)/i;
 
     const getStat = (stats, name) => {
       if (!stats[name]) {
@@ -54,6 +56,11 @@ export default class Profile {
         addToStat(loaderStats, loader, 1, time);
       });
 
+      if (request.file && request.file.match(componentPathReg)) {
+        const name = request.file.replace(componentPathReg, '$1');
+        addToStat(componentStats, name, 1, time);
+      }
+
       const ext = request.file && path.extname(request.file).substr(1);
       addToStat(extStats, ext && ext.length ? ext : 'unknown', 1, time);
     });
@@ -61,6 +68,7 @@ export default class Profile {
     return {
       ext: extStats,
       loader: loaderStats,
+      component: componentStats,
     };
   }
 }
